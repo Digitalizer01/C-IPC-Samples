@@ -17,7 +17,6 @@ DEspués el hijo finalizará.
 #include <sys/types.h>
 
 int tuberia[2];
-int tuberia_2[2];
 
 void p()
 {
@@ -31,11 +30,11 @@ void p()
 void q()
 {
     printf("     Se ha producido la señal SIGUSR2\n");
-    char mensaje[1000];
+    int indice;
     for (int i = 0; i < 5; i++)
     {
-        read(tuberia_2[0], mensaje, sizeof(mensaje));
-        printf("     (Función q) Padre. Mensaje: %s \n", mensaje);
+        read(tuberia[0], &indice, sizeof(indice));
+        printf("     (Función q) Padre. Mensaje: %d \n", indice);
     }
     printf("\n");
 }
@@ -45,7 +44,9 @@ int main(int argc, char const *argv[])
     int pid_fin, estado;
     int pid_hijo1;
     pipe(tuberia);
-    pipe(tuberia_2);
+
+    signal(SIGUSR1, p);
+    signal(SIGUSR2, q);
 
     printf("(PADRE) Soy el padre con PID %d\n", getpid());
 
@@ -60,12 +61,11 @@ int main(int argc, char const *argv[])
         write(tuberia[1], &pid_hijo, sizeof(pid_hijo));
         kill(getppid(), SIGUSR1);
 
-        char mensaje[1000];
+        sleep(0.5);
 
         for (int i = 0; i < 5; i++)
         {
-            sprintf(mensaje, "%d", i);
-            write(tuberia_2[1], mensaje, sizeof(mensaje));
+            write(tuberia[1], &i, sizeof(i));
         }
 
         kill(getppid(), SIGUSR2);
@@ -74,8 +74,6 @@ int main(int argc, char const *argv[])
     }
     else
     {
-        signal(SIGUSR1, p);
-        signal(SIGUSR2, q);
 
         pid_fin = wait(&estado); // Hasta que el proceso hijo no termine, el proceso padre no finaliza.
         // Padre
