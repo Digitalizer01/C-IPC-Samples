@@ -75,7 +75,7 @@ int main(int argc, char const *argv[])
                 printf("Esperando a que mi padre me diga que finalice %d \n", getpid());
                 sleep(0.5);
             }
-
+            printf("Hijo %d antes de finalizar \n", getpid());
             exit(0);
         }
     }
