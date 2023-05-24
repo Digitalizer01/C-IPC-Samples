@@ -1,4 +1,0 @@
-gcc -o lector lector.c
-gcc -o escritor escritor.c
-./escritor&
-./lector&
