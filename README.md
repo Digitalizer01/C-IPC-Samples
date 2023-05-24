@@ -1,8 +1,126 @@
-## C Scripts for Multi-Process Communication and Signal Handling
+# C Scripts for Multi-Process Communication and Signal Handling
 
 This repository contains a collection of C scripts focused on multi-process communication, pipe handling, shared memory communication, signal handling, and alarms. These scripts showcase various aspects of inter-process communication and signal management in C programming.
 
 # Repository Contents
+
+# Parent-Child Process Relationship
+
+process_creation.c spawns a new child process, and the parent and child processes exchange messages before terminating.
+
+## Main Function
+
+1. In the `main()` function, the parent process starts by printing its process ID (PID) and the message "I am process XX and I'm going to create a new process" using `printf()`.
+2. The program calls `fork()` to create a new child process. The `fork()` function returns 0 in the child process and the child's PID in the parent process.
+3. If `fork()` returns 0, indicating that the current process is the child process, the child process block is executed.
+4. Inside the child process block, the child process prints its own PID, parent's PID (using `getppid()`), and the message "I am process YY, my parent is XX" using `printf()`.
+5. Then, the child process prints "I am process YY and I'm going to exit" and terminates using `exit(0)`.
+6. If `fork()` returns a non-zero value (PID of the child) in the parent process block, the parent process executes.
+7. Inside the parent process block, the parent process prints its own PID, the child's PID, and the message "Process YY created successfully" using `printf()`.
+8. A short delay of 1 second (`sleep(1)`) is added to ensure that the parent process doesn't terminate before the child process. This delay allows the child process to complete its execution.
+9. Finally, the parent process prints "I am process XX and I'm going to exit" and terminates using `exit(0)`.
+
+Notes:
+- The values XX and YY represent the process IDs of the parent and child processes, respectively.
+- This program demonstrates the creation of a child process by a parent process. The parent process displays its own PID and the intention to create a new process. After forking, the child process displays its own PID and the parent's PID. Then, the child process prints a termination message and exits. Meanwhile, the parent process displays the child's PID and a success message before terminating.
+
+# Alarm Signal
+
+alarm_example.c sets an alarm signal to be triggered every 3 seconds. When the alarm signal is received, it prints a notification message.
+
+## Alarm Handler Function
+
+1. The `alarmHandler()` function is defined, which will be called when the alarm signal (SIGALRM) is received.
+2. Inside the `alarmHandler()` function, it prints the message "Alarm signal triggered." using `printf()`.
+3. It then calls `alarm(3)` to reset the alarm for another 3 seconds, ensuring that the alarm signal will be triggered again after 3 seconds.
+
+## Main Function
+
+1. In the `main()` function, the program registers the signal handler `alarmHandler()` for the SIGALRM signal using `signal(SIGALRM, alarmHandler)`.
+2. It then sets the initial alarm using `alarm(3)` to trigger the alarm signal after 3 seconds.
+3. The program enters an infinite loop (`while(1)`) to keep the program running indefinitely.
+
+Note:
+- The alarm signal (SIGALRM) is a signal that is triggered by the operating system after a specified amount of time has passed. In this program, the alarm signal is set to be triggered every 3 seconds.
+- This program demonstrates the use of the alarm signal (SIGALRM) in C. It sets an alarm to be triggered every 3 seconds using the alarm() function. When the alarm signal is received, the program executes the alarm handler function (alarmHandler()), which prints a notification message and resets the alarm for another 3 seconds. The program continues running in an infinite loop to ensure that the alarm signal is repeatedly triggered.
+
+# Signal Handling
+
+signal_handling.c demonstrates signal handling. It registers signal handlers for SIGQUIT and SIGINT signals.
+
+## Signal Handlers
+
+1. The program defines two signal handler functions: `q()` and `p()`.
+2. The `q()` function is associated with the SIGQUIT signal. When a SIGQUIT signal is received, it is executed and it prints the message "SIGQUIT signal received" using `printf()`.
+3. The `p()` function is associated with the SIGINT signal. When a SIGINT signal is received (typically triggered by pressing Ctrl+C in the terminal), it is executed and it prints the message "SIGINT signal received" using `printf()`. Additionally, it terminates the program with an exit code of 2 using `exit(2)`.
+
+## Main Function
+
+1. In the `main()` function, the program registers the signal handler `q()` for the SIGQUIT signal using `signal(SIGQUIT, q)`.
+2. It also registers the signal handler `p()` for the SIGINT signal using `signal(SIGINT, p)`.
+3. The program enters an infinite loop (`while(1)`) to continuously wait for signals to be received.
+4. As long as the program is running, it will respond to received signals by executing the associated signal handler functions.
+
+Note:
+- The SIGQUIT signal is typically generated by the user pressing Ctrl+\ in the terminal. The SIGINT signal is generated by the user pressing Ctrl+C in the terminal.
+- This program demonstrates the handling of SIGQUIT and SIGINT signals in C. It registers signal handlers q() and p() for SIGQUIT and SIGINT signals, respectively. When a SIGQUIT signal is received, the q() function is executed and prints a message. When a SIGINT signal is received, the p() function is executed, prints a message, and terminates the program with an exit code of 2.
+- The program enters an infinite loop, continuously waiting for signals to be received. It will respond to received signals by executing the associated signal handler functions.
+
+# Signal Handling
+
+signal_handling_v2.c handles signals SIGQUIT and SIGINT.
+
+## Signal Handlers
+
+1. The program defines two signal handler functions: `handleSIGQUIT()` and `handleSIGINT()`.
+2. The `handleSIGQUIT()` function is associated with the SIGQUIT signal (generated by pressing Ctrl+\ in the terminal). When a SIGQUIT signal is received, it is executed, and it prints the message "Received SIGQUIT signal" using `printf()`.
+3. The `handleSIGINT()` function is associated with the SIGINT signal (generated by pressing Ctrl+C in the terminal). When a SIGINT signal is received, it is executed, and it prints the message "Received SIGINT signal" using `printf()`. Additionally, it terminates the program with an exit code of 2 using `exit(2)`.
+
+## Main Function
+
+1. In the `main()` function, the program sets up signal handling for SIGQUIT and SIGINT.
+2. It creates `struct sigaction` objects `sigquitAction` and `sigintAction` to define the signal handling behavior.
+3. For each signal, it assigns the corresponding signal handler function and sets the `sa_mask` and `sa_flags` fields.
+4. It uses `sigaction()` to register the signal handling behavior for SIGQUIT and SIGINT using the `sigquitAction` and `sigintAction` objects, respectively.
+5. The program enters an infinite loop (`while(1)`) and continuously waits for signals to be received.
+6. Within the loop, it prints the message "Waiting for signal and working" using `printf()` and sleeps for 1 second using `sleep(1)`.
+
+Notes:
+- The SIGQUIT signal is typically generated by the user pressing Ctrl+\ in the terminal. The SIGINT signal is generated by the user pressing Ctrl+C in the terminal.
+- This program handles the SIGQUIT and SIGINT signals in C. It defines signal handler functions handleSIGQUIT() and handleSIGINT(). When a SIGQUIT signal (generated by pressing Ctrl+) is received, the handleSIGQUIT() function is executed and prints a message. When a SIGINT signal (generated by pressing Ctrl+C) is received, the handleSIGINT() function is executed, prints a message, and terminates the program with an exit code of 2.
+- The program sets up the signal handling behavior using struct sigaction objects. It registers the signal handlers for SIGQUIT and SIGINT using sigaction(). The program then enters an infinite loop, continuously waiting for signals to be received. Within the loop, it prints a message and sleeps for 1 second.
+
+# Interval Timer using Signals
+
+posix_interval_timer_example.c sets up an interval timer using signals. It installs a signal handler for SIGPROF, which is triggered every 3 seconds. Each time the signal is received, it prints an asterisk (*) to the standard error stream. The program continues running until the `condition` variable reaches 5.
+
+## Signal Handler
+
+1. The program defines a signal handler function named `asteriskHandler` that takes a signal as an argument.
+2. Inside the `asteriskHandler` function, it uses `write()` to print an asterisk (*) to the standard error stream (`stderr`).
+3. The `condition` variable is incremented each time the signal handler is called.
+
+## Signal Setup
+
+1. The program defines a function named `setupSignal` that sets up the signal handling.
+2. It initializes the `action` struct with the signal handler function and sets the `SA_RESTART` flag.
+3. The `sigaction()` function is called to register the signal handler function (`asteriskHandler`) for the `SIGPROF` signal.
+
+## Interval Timer Initialization
+
+1. The program defines a function named `initializeIntervalTimer` that sets up the interval timer.
+2. It initializes the `timer_value` struct with the interval duration of 3 seconds.
+3. The `setitimer()` function is called with the `ITIMER_PROF` parameter to start the interval timer.
+
+## Main Function
+
+1. In the `main()` function, the `setupSignal()` and `initializeIntervalTimer()` functions are called to set up the signal handling and start the interval timer.
+2. The program enters a loop and continues running until the `condition` variable reaches 5.
+3. Once the `condition` reaches 5, the loop exits and the program terminates by calling `exit(0)`.
+
+Notes:
+- The program uses `write(2, "*", strlen("*"))` to print an asterisk (*) to the standard error stream (`stderr`) because the standard output stream (`stdout`) is typically line-buffered, and it may not immediately display the output.
+- This program demonstrates how to set up an interval timer using signals. It utilizes the SIGPROF signal and a signal handler function to print an asterisk (*) to the standard error stream every 3 seconds. The program continues running until the condition variable reaches 5.
 
 # Child Process Creation and Termination
 
@@ -68,36 +186,6 @@ shared_memory_communication.c demonstrates the communication between a parent pr
 5. The child process displays the value of shared memory associated with itself and the parent process.
 6. Finally, the child process releases its pointer to shared memory, exits, and terminates.
 
-# Interprocess Communication with Shared Memory, Pipes, and Signals in C
-
-multi_process_communication_v2.c demonstrates interprocess communication between a parent process and two child processes using shared memory, pipes, and signals.
-
-## Parent Process
-
-1. The parent process initializes shared memory using `shmget()` and attaches to it using `shmat()`.
-2. Two fields are defined in shared memory for each child process: `pid` and `exit_condition`.
-3. The parent process creates a pipe using `pipe()` to communicate with the child processes.
-4. It then forks two child processes.
-5. Each child process sets up a signal handler using `sigaction()` to handle the `SIGUSR1` signal.
-6. The child process stores its PID in the shared memory and waits for a short period.
-7. The child process enters a loop, performing some work and sleeping for 0.5 seconds.
-8. Meanwhile, the child process checks the `exit_condition` in shared memory. If it is 0, the child process continues to wait.
-9. When the `exit_condition` is set to 1 by the parent process, the child process prints a termination message and exits.
-10. The parent process waits for each child process to initialize its PID in shared memory.
-11. Next, the parent process writes a value (`5`) to the pipe for each child process and sends the `SIGUSR1` signal to each child process.
-12. The parent process waits for each child process to terminate using `wait()`.
-13. Finally, the parent process displays a completion message and exits.
-
-## Child Processes
-
-1. Each child process initializes its signal handler to handle the `SIGUSR1` signal.
-2. The child process stores its PID in the shared memory and waits for a short period.
-3. The child process enters a loop, performing some work and sleeping for 0.5 seconds.
-4. The child process checks the `exit_condition` in shared memory. If it is 0, the child process continues to wait.
-5. When the `exit_condition` is set to 1 by the parent process, the child process prints a termination message and exits.
-
-Note: The communication between the parent and child processes is facilitated through shared memory and pipes. The `SIGUSR1` signal is used for synchronization and termination notification.
-
 # Interprocess Communication using Named Pipes in C
 
 named_pipe_writer.c demonstrates interprocess communication using named pipes. The program acts as a writer process that opens a named pipe, writes a message to it three times at regular intervals, and then closes the pipe.
@@ -131,37 +219,36 @@ Note: The writer process repeatedly opens the named pipe until it is successful.
 
 Note: The reader process repeatedly opens the named pipe until it is successful. This is because the writer process may not have created the pipe yet. The reader process blocks until the writer process opens the named pipe.
 
-# Interval Timer using Signals
 
-posix_interval_timer_example.c sets up an interval timer using signals. It installs a signal handler for SIGPROF, which is triggered every 3 seconds. Each time the signal is received, it prints an asterisk (*) to the standard error stream. The program continues running until the `condition` variable reaches 5.
+# Interprocess Communication with Shared Memory, Pipes, and Signals in C
 
-## Signal Handler
+multi_process_communication_v2.c demonstrates interprocess communication between a parent process and two child processes using shared memory, pipes, and signals.
 
-1. The program defines a signal handler function named `asteriskHandler` that takes a signal as an argument.
-2. Inside the `asteriskHandler` function, it uses `write()` to print an asterisk (*) to the standard error stream (`stderr`).
-3. The `condition` variable is incremented each time the signal handler is called.
+## Parent Process
 
-## Signal Setup
+1. The parent process initializes shared memory using `shmget()` and attaches to it using `shmat()`.
+2. Two fields are defined in shared memory for each child process: `pid` and `exit_condition`.
+3. The parent process creates a pipe using `pipe()` to communicate with the child processes.
+4. It then forks two child processes.
+5. Each child process sets up a signal handler using `sigaction()` to handle the `SIGUSR1` signal.
+6. The child process stores its PID in the shared memory and waits for a short period.
+7. The child process enters a loop, performing some work and sleeping for 0.5 seconds.
+8. Meanwhile, the child process checks the `exit_condition` in shared memory. If it is 0, the child process continues to wait.
+9. When the `exit_condition` is set to 1 by the parent process, the child process prints a termination message and exits.
+10. The parent process waits for each child process to initialize its PID in shared memory.
+11. Next, the parent process writes a value (`5`) to the pipe for each child process and sends the `SIGUSR1` signal to each child process.
+12. The parent process waits for each child process to terminate using `wait()`.
+13. Finally, the parent process displays a completion message and exits.
 
-1. The program defines a function named `setupSignal` that sets up the signal handling.
-2. It initializes the `action` struct with the signal handler function and sets the `SA_RESTART` flag.
-3. The `sigaction()` function is called to register the signal handler function (`asteriskHandler`) for the `SIGPROF` signal.
+## Child Processes
 
-## Interval Timer Initialization
+1. Each child process initializes its signal handler to handle the `SIGUSR1` signal.
+2. The child process stores its PID in the shared memory and waits for a short period.
+3. The child process enters a loop, performing some work and sleeping for 0.5 seconds.
+4. The child process checks the `exit_condition` in shared memory. If it is 0, the child process continues to wait.
+5. When the `exit_condition` is set to 1 by the parent process, the child process prints a termination message and exits.
 
-1. The program defines a function named `initializeIntervalTimer` that sets up the interval timer.
-2. It initializes the `timer_value` struct with the interval duration of 3 seconds.
-3. The `setitimer()` function is called with the `ITIMER_PROF` parameter to start the interval timer.
-
-## Main Function
-
-1. In the `main()` function, the `setupSignal()` and `initializeIntervalTimer()` functions are called to set up the signal handling and start the interval timer.
-2. The program enters a loop and continues running until the `condition` variable reaches 5.
-3. Once the `condition` reaches 5, the loop exits and the program terminates by calling `exit(0)`.
-
-Notes:
-- The program uses `write(2, "*", strlen("*"))` to print an asterisk (*) to the standard error stream (`stderr`) because the standard output stream (`stdout`) is typically line-buffered, and it may not immediately display the output.
-- This program demonstrates how to set up an interval timer using signals. It utilizes the SIGPROF signal and a signal handler function to print an asterisk (*) to the standard error stream every 3 seconds. The program continues running until the condition variable reaches 5.
+Note: The communication between the parent and child processes is facilitated through shared memory and pipes. The `SIGUSR1` signal is used for synchronization and termination notification.
 
 # Communication Between Parent and Child Processes using Pipes and Signals
 
@@ -225,112 +312,3 @@ process_communication_v2.c creates a child process after displaying an identifyi
 Notes:
 - The `SIGUSR1` and `SIGUSR2` signals are user-defined signals that can be used for communication between processes.
 - This program demonstrates communication between a parent process and a child process using pipes and signal synchronization. The parent process creates a child process, and they exchange information through a pipe. The parent process waits for the child process to finish, and then both processes display their respective process identifiers (PIDs).
-
-# Parent-Child Process Relationship
-
-process_creation.c spawns a new child process, and the parent and child processes exchange messages before terminating.
-
-## Main Function
-
-1. In the `main()` function, the parent process starts by printing its process ID (PID) and the message "I am process XX and I'm going to create a new process" using `printf()`.
-2. The program calls `fork()` to create a new child process. The `fork()` function returns 0 in the child process and the child's PID in the parent process.
-3. If `fork()` returns 0, indicating that the current process is the child process, the child process block is executed.
-4. Inside the child process block, the child process prints its own PID, parent's PID (using `getppid()`), and the message "I am process YY, my parent is XX" using `printf()`.
-5. Then, the child process prints "I am process YY and I'm going to exit" and terminates using `exit(0)`.
-6. If `fork()` returns a non-zero value (PID of the child) in the parent process block, the parent process executes.
-7. Inside the parent process block, the parent process prints its own PID, the child's PID, and the message "Process YY created successfully" using `printf()`.
-8. A short delay of 1 second (`sleep(1)`) is added to ensure that the parent process doesn't terminate before the child process. This delay allows the child process to complete its execution.
-9. Finally, the parent process prints "I am process XX and I'm going to exit" and terminates using `exit(0)`.
-
-Notes:
-- The values XX and YY represent the process IDs of the parent and child processes, respectively.
-- This program demonstrates the creation of a child process by a parent process. The parent process displays its own PID and the intention to create a new process. After forking, the child process displays its own PID and the parent's PID. Then, the child process prints a termination message and exits. Meanwhile, the parent process displays the child's PID and a success message before terminating.
-
-# Alarm Signal
-
-alarm_example.c sets an alarm signal to be triggered every 3 seconds. When the alarm signal is received, it prints a notification message.
-
-## Alarm Handler Function
-
-1. The `alarmHandler()` function is defined, which will be called when the alarm signal (SIGALRM) is received.
-2. Inside the `alarmHandler()` function, it prints the message "Alarm signal triggered." using `printf()`.
-3. It then calls `alarm(3)` to reset the alarm for another 3 seconds, ensuring that the alarm signal will be triggered again after 3 seconds.
-
-## Main Function
-
-1. In the `main()` function, the program registers the signal handler `alarmHandler()` for the SIGALRM signal using `signal(SIGALRM, alarmHandler)`.
-2. It then sets the initial alarm using `alarm(3)` to trigger the alarm signal after 3 seconds.
-3. The program enters an infinite loop (`while(1)`) to keep the program running indefinitely.
-
-Note:
-- The alarm signal (SIGALRM) is a signal that is triggered by the operating system after a specified amount of time has passed. In this program, the alarm signal is set to be triggered every 3 seconds.
-- This program demonstrates the use of the alarm signal (SIGALRM) in C. It sets an alarm to be triggered every 3 seconds using the alarm() function. When the alarm signal is received, the program executes the alarm handler function (alarmHandler()), which prints a notification message and resets the alarm for another 3 seconds. The program continues running in an infinite loop to ensure that the alarm signal is repeatedly triggered.
-
-# Signal Handling
-
-signal_handling.c demonstrates signal handling. It registers signal handlers for SIGQUIT and SIGINT signals.
-
-## Signal Handlers
-
-1. The program defines two signal handler functions: `q()` and `p()`.
-2. The `q()` function is associated with the SIGQUIT signal. When a SIGQUIT signal is received, it is executed and it prints the message "SIGQUIT signal received" using `printf()`.
-3. The `p()` function is associated with the SIGINT signal. When a SIGINT signal is received (typically triggered by pressing Ctrl+C in the terminal), it is executed and it prints the message "SIGINT signal received" using `printf()`. Additionally, it terminates the program with an exit code of 2 using `exit(2)`.
-
-## Main Function
-
-1. In the `main()` function, the program registers the signal handler `q()` for the SIGQUIT signal using `signal(SIGQUIT, q)`.
-2. It also registers the signal handler `p()` for the SIGINT signal using `signal(SIGINT, p)`.
-3. The program enters an infinite loop (`while(1)`) to continuously wait for signals to be received.
-4. As long as the program is running, it will respond to received signals by executing the associated signal handler functions.
-
-Notes:
-- The SIGQUIT signal is typically generated by the user pressing Ctrl+\ in the terminal. The SIGINT signal is generated by the user pressing Ctrl+C in the terminal.
-Certainly! Here's an explanation of the provided C script that demonstrates signal handling:
-
-markdown
-
-# Signal Handling
-
-signal_handling.c demonstrates signal handling. It registers signal handlers for SIGQUIT and SIGINT signals.
-
-## Signal Handlers
-
-1. The program defines two signal handler functions: `q()` and `p()`.
-2. The `q()` function is associated with the SIGQUIT signal. When a SIGQUIT signal is received, it is executed and it prints the message "SIGQUIT signal received" using `printf()`.
-3. The `p()` function is associated with the SIGINT signal. When a SIGINT signal is received (typically triggered by pressing Ctrl+C in the terminal), it is executed and it prints the message "SIGINT signal received" using `printf()`. Additionally, it terminates the program with an exit code of 2 using `exit(2)`.
-
-## Main Function
-
-1. In the `main()` function, the program registers the signal handler `q()` for the SIGQUIT signal using `signal(SIGQUIT, q)`.
-2. It also registers the signal handler `p()` for the SIGINT signal using `signal(SIGINT, p)`.
-3. The program enters an infinite loop (`while(1)`) to continuously wait for signals to be received.
-4. As long as the program is running, it will respond to received signals by executing the associated signal handler functions.
-
-Note:
-- The SIGQUIT signal is typically generated by the user pressing Ctrl+\ in the terminal. The SIGINT signal is generated by the user pressing Ctrl+C in the terminal.
-- This program demonstrates the handling of SIGQUIT and SIGINT signals in C. It registers signal handlers q() and p() for SIGQUIT and SIGINT signals, respectively. When a SIGQUIT signal is received, the q() function is executed and prints a message. When a SIGINT signal is received, the p() function is executed, prints a message, and terminates the program with an exit code of 2.
-- The program enters an infinite loop, continuously waiting for signals to be received. It will respond to received signals by executing the associated signal handler functions.
-
-# Signal Handling
-
-signal_handling_v2.c handles signals SIGQUIT and SIGINT.
-
-## Signal Handlers
-
-1. The program defines two signal handler functions: `handleSIGQUIT()` and `handleSIGINT()`.
-2. The `handleSIGQUIT()` function is associated with the SIGQUIT signal (generated by pressing Ctrl+\ in the terminal). When a SIGQUIT signal is received, it is executed, and it prints the message "Received SIGQUIT signal" using `printf()`.
-3. The `handleSIGINT()` function is associated with the SIGINT signal (generated by pressing Ctrl+C in the terminal). When a SIGINT signal is received, it is executed, and it prints the message "Received SIGINT signal" using `printf()`. Additionally, it terminates the program with an exit code of 2 using `exit(2)`.
-
-## Main Function
-
-1. In the `main()` function, the program sets up signal handling for SIGQUIT and SIGINT.
-2. It creates `struct sigaction` objects `sigquitAction` and `sigintAction` to define the signal handling behavior.
-3. For each signal, it assigns the corresponding signal handler function and sets the `sa_mask` and `sa_flags` fields.
-4. It uses `sigaction()` to register the signal handling behavior for SIGQUIT and SIGINT using the `sigquitAction` and `sigintAction` objects, respectively.
-5. The program enters an infinite loop (`while(1)`) and continuously waits for signals to be received.
-6. Within the loop, it prints the message "Waiting for signal and working" using `printf()` and sleeps for 1 second using `sleep(1)`.
-
-Notes:
-- The SIGQUIT signal is typically generated by the user pressing Ctrl+\ in the terminal. The SIGINT signal is generated by the user pressing Ctrl+C in the terminal.
-- This program handles the SIGQUIT and SIGINT signals in C. It defines signal handler functions handleSIGQUIT() and handleSIGINT(). When a SIGQUIT signal (generated by pressing Ctrl+) is received, the handleSIGQUIT() function is executed and prints a message. When a SIGINT signal (generated by pressing Ctrl+C) is received, the handleSIGINT() function is executed, prints a message, and terminates the program with an exit code of 2.
-- The program sets up the signal handling behavior using struct sigaction objects. It registers the signal handlers for SIGQUIT and SIGINT using sigaction(). The program then enters an infinite loop, continuously waiting for signals to be received. Within the loop, it prints a message and sleeps for 1 second.
